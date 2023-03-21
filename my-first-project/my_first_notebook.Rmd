@@ -1,11 +1,17 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "My first R notebook"
+output: 
+  html_document: 
+    toc: yes
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.
+# My first R notebook
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*.
+This notebook is used to document my first adventure into the exciting world of R.
+
+## A simple first plot
+
+R contains some data sources which can be used to play around with. For example the `cars` object. When plotted, it looks like this:
 
 ```{r}
 plot(cars)
