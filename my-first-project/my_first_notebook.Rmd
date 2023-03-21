@@ -17,8 +17,30 @@ R contains some data sources which can be used to play around with. For example 
 plot(cars)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+## Getting started
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file).
+First, we will acquire some data.
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+### Getting data
+
+Here goes the getting data part. We'll simply use `cars` for now. Let's look at the data
+
+```{r}
+cars
+```
+
+### Transforming data
+
+This is where tidyverse comes in. First we load it.
+
+```{r}
+library(tidyverse)
+```
+
+Now we can only look at cars that have a distance \> 50. Use the `dplyr` package and the `filter` function, store the result in the new variable `count` and print it out.
+
+```{r}
+cars %>%
+  filter(cars$dist > 50) %>%
+  summarise(count = n())
+```
