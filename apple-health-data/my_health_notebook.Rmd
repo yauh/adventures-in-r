@@ -3,13 +3,17 @@ title: "Apple Health Notebook"
 output: 
   html_document: 
     toc: yes
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 # Apple Health Notebook
 
-This notebook assumes that you have created and extracted an export with your Apple Health data in the current working directory.
+This notebook assumes that you have created and extracted an export with
+your Apple Health data in the current working directory.
 
-## Load required libraries and data
+## Load required libraries and xml data
 
 ```{r}
 library(XML)
@@ -18,6 +22,40 @@ library(lubridate)
 library(scales)
 library(ggthemes)
 setwd('./apple_health_export')
-xml <- xmlParse('export.xml')
+xml <- xmlParse('Export.xml')
 ```
 
+## Create dataframes
+
+```{r}
+df_record   <- XML:::xmlAttrsToDataFrame(xml["//Record"])
+# df_activity <- XML:::xmlAttrsToDataFrame(xml["//ActivitySummary"])
+# df_workout  <- XML:::xmlAttrsToDataFrame(xml["//Workout"])
+# df_clinical <- XML:::xmlAttrsToDataFrame(xml["//ClinicalRecord"])
+# df_location <- XML:::xmlAttrsToDataFrame(xml["//Location"])
+```
+
+## Cleanup data
+
+### Record
+
+```{r}
+df_record <- df_record %>%
+mutate(device = gsub(".*(name:)|,.*", "",device),
+       value = as.numeric(as.character(value)),
+       endDate = ymd_hms(endDate,tz="Europe/Berlin"),
+       date = date(endDate),
+       year = year(endDate),
+       month = month(endDate),
+       day = day(endDate),
+       yday = yday(endDate),
+       wday = wday(endDate),
+       hour = hour(endDate),
+       minute = minute(endDate),
+       type = str_remove(type, "HKQuantityTypeIdentifier")
+       )
+
+df_record %>% 
+  select(type) %>% 
+  distinct()
+```
