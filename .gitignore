@@ -49,5 +49,7 @@ ehthumbs.db
 Thumbs.db
 
 # ignore apple health data
-**/apple-health-data/
+**/apple_health_export/
 **/Export.zip
+apple-health-data/my_health_notebook.nb.html
+apple-health-data/my_health_notebook.html

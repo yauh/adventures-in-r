@@ -1,0 +1,23 @@
+---
+title: "Apple Health Notebook"
+output: 
+  html_document: 
+    toc: yes
+---
+
+# Apple Health Notebook
+
+This notebook assumes that you have created and extracted an export with your Apple Health data in the current working directory.
+
+## Load required libraries and data
+
+```{r}
+library(XML)
+library(tidyverse)
+library(lubridate)
+library(scales)
+library(ggthemes)
+setwd('./apple_health_export')
+xml <- xmlParse('export.xml')
+```
+
