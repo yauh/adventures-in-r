@@ -47,3 +47,7 @@ vignettes/*.pdf
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# ignore apple health data
+**/apple-health-data/
+**/Export.zip
