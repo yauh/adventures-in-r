@@ -1,0 +1,62 @@
+---
+title: "R Timeseries Data"
+output: html_notebook
+---
+
+# This notebook deals with data over a period of time.
+
+## Sample data
+
+Our sample data is present in `data/data.csv`. It contains a simple timestamp and two values.
+
+## Load libraries
+
+```{r}
+prereqs<-c("tidyverse", "lubridate")
+lapply(prereqs, require, character.only = TRUE)
+```
+
+## Read data
+
+We're reading in the csv file and assign better column names while we're at it.
+
+```{r}
+df <- read.csv(file = 'data/data.csv')
+
+# assign meaningful column names
+colnames(df) <- c("timestamp",
+  "value1",
+  "value2")
+
+head(df_bikes)
+```
+
+## Add usable timestamps
+
+[lubridate](https://lubridate.tidyverse.org) gives several nice tools to manipulate dates and extract valuable information, like the weekday or a proper timestamp.
+
+```{r}
+df <- mutate(df_bikes,
+  ymdhms = ymd_hms(timestamp),
+  date = date(timestamp),
+  day_of_week = wday(date),
+  weekday_long = strftime(date,'%A'),
+  weekday_short = strftime(date,'%a'),
+  month = month(date),
+  week = week(date)
+)
+  
+head(df)
+```
+
+## A first plot
+
+```{r}
+p <- ggplot(data = df, aes(x = date, y = value1))+
+  geom_line(color = "#00AFBB", size = 2)
+
+p + stat_smooth(
+  color = "#FC4E07", fill = "#FC4E07",
+  method = "loess"
+  )
+```
