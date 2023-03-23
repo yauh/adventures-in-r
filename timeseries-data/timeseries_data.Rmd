@@ -51,6 +51,8 @@ head(df)
 
 ## A first plot
 
+Using ggplot. Check out [this cheat sheet](https://github.com/rstudio/cheatsheets/blob/main/data-visualization-2.1.pdf).
+
 ```{r}
 p <- ggplot(data = df, aes(x = date, y = value1))+
   geom_line(color = "#00AFBB", size = 2)
