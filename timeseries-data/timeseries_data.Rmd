@@ -28,7 +28,7 @@ colnames(df) <- c("timestamp",
   "value1",
   "value2")
 
-head(df_bikes)
+head(df)
 ```
 
 ## Add usable timestamps
@@ -36,7 +36,7 @@ head(df_bikes)
 [lubridate](https://lubridate.tidyverse.org) gives several nice tools to manipulate dates and extract valuable information, like the weekday or a proper timestamp.
 
 ```{r}
-df <- mutate(df_bikes,
+df <- mutate(df,
   ymdhms = ymd_hms(timestamp),
   date = date(timestamp),
   day_of_week = wday(date),
@@ -55,7 +55,7 @@ Using ggplot. Check out [this cheat sheet](https://github.com/rstudio/cheatsheet
 
 ```{r}
 p <- ggplot(data = df, aes(x = date, y = value1))+
-  geom_line(color = "#00AFBB", size = 2)
+  geom_line(color = "#00AFBB", linewidth = 2)
 
 p + stat_smooth(
   color = "#FC4E07", fill = "#FC4E07",
