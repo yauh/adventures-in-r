@@ -62,3 +62,14 @@ p + stat_smooth(
   method = "loess"
   )
 ```
+
+Another variant
+
+```{r}
+library(scales)
+ggplot(df, aes(x = date, y = value1)) + 
+  geom_bar(stat = "identity") +
+  theme_bw() +
+  labs(x = "Date", y = "value") +
+  scale_x_date(labels = date_format("%m-%Y"))
+```
