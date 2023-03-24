@@ -71,5 +71,7 @@ ggplot(df, aes(x = date, y = value1)) +
   geom_bar(stat = "identity") +
   theme_bw() +
   labs(x = "Date", y = "value") +
-  scale_x_date(labels = date_format("%m-%Y"))
+  scale_x_date(
+    labels = date_format("%b\n%Y"), 
+    date_breaks = "6 months")
 ```
