@@ -75,3 +75,29 @@ ggplot(df, aes(x = date, y = value1)) +
     labels = date_format("%b\n%Y"), 
     date_breaks = "6 months")
 ```
+
+## Grouping by Months
+
+```{r}
+df_ausgaben <- read.csv(file = 'data/ausgaben.csv', sep=';')
+
+df_ausgaben <- mutate(df_ausgaben,
+  Datum = as.Date(Datum, format = "%d.%m.%Y"),
+  Monat = month(Datum),
+  Jahr = year(Datum),
+  Betrag =as.numeric(gsub(",", ".", gsub("\\.", "", Betrag)))
+)
+  
+head(df_ausgaben)
+
+```
+
+Now for the monthly expenses
+
+```{r}
+df_ausgaben_month <- df_ausgaben %>%
+  group_by(Monat) %>%
+  summarise(Ausgaben = sum(Betrag))
+
+df_ausgaben_month
+```
