@@ -11,7 +11,9 @@ editor_options:
 # Apple Health Notebook
 
 This notebook assumes that you have created and extracted an export with
-your Apple Health data in the current working directory.
+your Apple Health data in the current working directory. It is highly
+inspired by [Taras
+Kaduk](https://taraskaduk.com/posts/2019-03-23-apple-health/).
 
 ## Load required libraries and xml data
 
@@ -29,13 +31,30 @@ xml <- xmlParse('Export.xml')
 
 ```{r}
 df_record   <- XML:::xmlAttrsToDataFrame(xml["//Record"])
-# df_activity <- XML:::xmlAttrsToDataFrame(xml["//ActivitySummary"])
+df_activity <- XML:::xmlAttrsToDataFrame(xml["//ActivitySummary"])
 # df_workout  <- XML:::xmlAttrsToDataFrame(xml["//Workout"])
 # df_clinical <- XML:::xmlAttrsToDataFrame(xml["//ClinicalRecord"])
 # df_location <- XML:::xmlAttrsToDataFrame(xml["//Location"])
 ```
 
 ## Cleanup data
+
+-   **Record** is the main place where the data is stored. Weight,
+    height, blood pressure, steps, nutrition data, heart rate - all
+    stored here
+
+-   **ActivitySummary** is your Apple Watch daily Activity stats: Move,
+    Exercise, Stand data
+
+-   **Workout** is your Apple Watch workout activity per workout logged
+
+-   **Location** is your location logged during your Apple Watch
+    workouts (useful for runs/hikes)
+
+-   **InstantaneousBeatsPerMinute** is exactly that: instantaneous heart
+    rate when measured by AppleWatch
+
+-   **ExportDate** is useful to validate what data are you looking at.
 
 ### Record
 
@@ -58,4 +77,83 @@ mutate(device = gsub(".*(name:)|,.*", "",device),
 df_record %>% 
   select(type) %>% 
   distinct()
+```
+
+## Visualize data
+
+### Plotting weight over time
+
+```{r}
+df_record %>%
+  arrange(endDate) %>% 
+  filter(type == 'BodyMass') %>% 
+  filter(date > '2023-01-01' ) %>% 
+  
+  ggplot(aes(x= date, y = value)) +
+    geom_point(alpha = 0.3) +
+    geom_smooth(span = 0.2, col = "grey30", se = FALSE) +
+    labs(title = "Apple Health Weight Chart",
+         caption = "powered by ggplot") +
+    xlab("Date") + ylab("Weight")
+```
+
+## Plotting activity/step count
+
+```{r}
+df_record %>%
+  filter(type == 'StepCount') %>% 
+  group_by(date,wday,hour) %>% 
+  summarize(steps=sum(value)) %>% 
+  group_by(hour,wday) %>% 
+  summarize(steps=sum(steps)) %>% 
+  arrange(desc(steps)) %>%
+
+  ggplot(aes(x=hour, y=wday,  fill=steps)) + 
+    geom_tile(col = 'grey40') + 
+    scale_fill_continuous(labels = scales::comma, low = 'grey95', high = '#008FD5') +
+    theme(panel.grid.major = element_blank()) +
+    scale_x_continuous(
+      breaks = c(0, 6, 12, 18),
+      label = c("Midnight", "6 AM", "Midday", "6 PM")
+    ) +
+    scale_y_reverse(
+      breaks = c(1,2,3,4,5,6,7),
+      label = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+    ) +
+    labs(title = "Weekly Step Count Heatmap",
+         caption = 'powered by ggplot') +
+    guides(fill=FALSE)+
+    coord_equal()
+```
+
+### Combine weight and steps
+
+```{r}
+#TODO: Write pretty ggplot code for bar representing steps and line showing weight
+```
+
+## Activity Data
+
+```{r}
+df_activity_clean <- df_activity %>% 
+  select(-activeEnergyBurnedUnit) %>% 
+  mutate_all(as.character) %>% 
+  mutate(date = as.Date(dateComponents)) %>% 
+  filter(date >= "2018-11-13") %>% 
+  select(-dateComponents) %>% 
+  mutate_if(is.character, as.numeric) %>% 
+  rename(move = activeEnergyBurned,
+         exercise = appleExerciseTime,
+         stand = appleStandHours,
+         move_goal = activeEnergyBurnedGoal,
+         exercise_goal = appleExerciseTimeGoal,
+         stand_goal = appleStandHoursGoal) %>% 
+#Now, create 2 new metrics: percent of goal and a "Yes/No" flag.
+  mutate(move_pct = move/move_goal,
+         exercise_pct = exercise/exercise_goal,
+         stand_pct = stand/stand_goal,
+         move_bool = if_else(move_pct < 1, FALSE, TRUE),
+         exercise_bool = if_else(exercise_pct < 1, FALSE, TRUE),
+         stand_bool = if_else(stand_pct < 1, FALSE, TRUE))
+
 ```
