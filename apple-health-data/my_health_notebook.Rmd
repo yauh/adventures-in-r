@@ -103,7 +103,7 @@ The activity data frame has several interesting factors:
 
 -   `activeEnergyBurnedGoal` - the calories goal for this day
 
--   `appleExcerciseTime` and `appleExcerciseTimeGoal` - the actual and
+-   `appleExerciseTime` and `appleExerciseTimeGoal` - the actual and
     goal for activity minutes on a day
 
 -   `appleStandHours` and `appleStandHoursGoal` - actual and goal for
@@ -111,14 +111,20 @@ The activity data frame has several interesting factors:
 
 ```{r}
 df_activity <- df_activity %>%
-mutate(date = as.date(dateComponents),
+mutate(date = ymd(dateComponents),
        year = year(date),
        month = month(date),
        day = day(date),
        yday = yday(date),
-       wday = wday(date)
+       wday = wday(date),
+       activeEnergyBurned = as.numeric(as.character(activeEnergyBurned)),
+       activeEnergyBurnedGoal = as.numeric(as.character(activeEnergyBurnedGoal)),
+       appleExerciseTime = as.numeric(as.character(appleExerciseTime)),
+       appleExerciseTimeGoal = as.numeric(as.character(appleExerciseTimeGoal)),
+       appleStandHours = as.numeric(as.character(appleStandHours)),
+       appleStandHoursGoal = as.numeric(as.character(appleStandHoursGoal))
        )
-
+tail(df_activity)
 ```
 
 ## Visualize data
@@ -172,7 +178,7 @@ df_record %>%
 
 ```{r}
 df_activity %>%
-  arrange(date) %>% 
+  arrange(date) %>%
   
   ggplot(aes(x= date, y = activeEnergyBurned)) +
     geom_point(alpha = 0.3) +
@@ -184,5 +190,5 @@ df_activity %>%
 
 ## Activity Data
 
-```{}
+```         
 ```
