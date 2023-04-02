@@ -39,24 +39,36 @@ df_activity <- XML:::xmlAttrsToDataFrame(xml["//ActivitySummary"])
 
 ## Cleanup data
 
--   **Record** is the main place where the data is stored. Weight,
+-   **`Record`** is the main place where the data is stored. Weight,
     height, blood pressure, steps, nutrition data, heart rate - all
     stored here
 
--   **ActivitySummary** is your Apple Watch daily Activity stats: Move,
-    Exercise, Stand data
+-   **`ActivitySummary`** is your Apple Watch daily Activity stats:
+    Move, Exercise, Stand data
 
--   **Workout** is your Apple Watch workout activity per workout logged
+-   **`Workout`** is your Apple Watch workout activity per workout
+    logged
 
--   **Location** is your location logged during your Apple Watch
+-   **`Location`** is your location logged during your Apple Watch
     workouts (useful for runs/hikes)
 
--   **InstantaneousBeatsPerMinute** is exactly that: instantaneous heart
-    rate when measured by AppleWatch
+-   **`InstantaneousBeatsPerMinute`** is exactly that: instantaneous
+    heart rate when measured by AppleWatch
 
--   **ExportDate** is useful to validate what data are you looking at.
+-   **`ExportDate`** is useful to validate what data are you looking at.
 
 ### Record
+
+The record dataframe has some interesting vectors:
+
+-   `sourceName` and `device` - where the data was generated, e.g. the
+    name "John's Apple Watch" as `sourceName` and "Apple Watch" as the
+    `device`
+
+-   `type` - the type of record, could be `BodyMass` for weight or
+    `VO2Max` for respitory fitness
+
+-   `value` - the actual value with more details in the `unit` factor
 
 ```{r}
 df_record <- df_record %>%
@@ -77,6 +89,36 @@ mutate(device = gsub(".*(name:)|,.*", "",device),
 df_record %>% 
   select(type) %>% 
   distinct()
+```
+
+### Activity
+
+The activity data frame has several interesting factors:
+
+-   `dateComponents` - the actual date for the activity stats
+
+-   `activeEnergyBurned` - the actual number of calories burned on this
+    day (`activeEnergyBurnedUnit` typically is set to kcal, hence it is
+    less interesting to me)
+
+-   `activeEnergyBurnedGoal` - the calories goal for this day
+
+-   `appleExcerciseTime` and `appleExcerciseTimeGoal` - the actual and
+    goal for activity minutes on a day
+
+-   `appleStandHours` and `appleStandHoursGoal` - actual and goal for
+    hours containing at least 60 secs of standing
+
+```{r}
+df_activity <- df_activity %>%
+mutate(date = as.date(dateComponents),
+       year = year(date),
+       month = month(date),
+       day = day(date),
+       yday = yday(date),
+       wday = wday(date)
+       )
+
 ```
 
 ## Visualize data
@@ -126,34 +168,21 @@ df_record %>%
     coord_equal()
 ```
 
-### Combine weight and steps
+### Plot activity
 
 ```{r}
-#TODO: Write pretty ggplot code for bar representing steps and line showing weight
+df_activity %>%
+  arrange(date) %>% 
+  
+  ggplot(aes(x= date, y = activeEnergyBurned)) +
+    geom_point(alpha = 0.3) +
+    geom_smooth(span = 0.2, col = "grey30", se = FALSE) +
+    labs(title = "Apple Health Energy Burned Chart",
+         caption = "powered by ggplot") +
+    xlab("Date") + ylab("Weight")
 ```
 
 ## Activity Data
 
-```{r}
-df_activity_clean <- df_activity %>% 
-  select(-activeEnergyBurnedUnit) %>% 
-  mutate_all(as.character) %>% 
-  mutate(date = as.Date(dateComponents)) %>% 
-  filter(date >= "2018-11-13") %>% 
-  select(-dateComponents) %>% 
-  mutate_if(is.character, as.numeric) %>% 
-  rename(move = activeEnergyBurned,
-         exercise = appleExerciseTime,
-         stand = appleStandHours,
-         move_goal = activeEnergyBurnedGoal,
-         exercise_goal = appleExerciseTimeGoal,
-         stand_goal = appleStandHoursGoal) %>% 
-#Now, create 2 new metrics: percent of goal and a "Yes/No" flag.
-  mutate(move_pct = move/move_goal,
-         exercise_pct = exercise/exercise_goal,
-         stand_pct = stand/stand_goal,
-         move_bool = if_else(move_pct < 1, FALSE, TRUE),
-         exercise_bool = if_else(exercise_pct < 1, FALSE, TRUE),
-         stand_bool = if_else(stand_pct < 1, FALSE, TRUE))
-
+```{}
 ```
