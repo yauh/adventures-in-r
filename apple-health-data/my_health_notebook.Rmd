@@ -185,7 +185,7 @@ df_activity %>%
     geom_smooth(span = 0.2, col = "grey30", se = FALSE) +
     labs(title = "Apple Health Energy Burned Chart",
          caption = "powered by ggplot") +
-    xlab("Date") + ylab("Weight")
+    xlab("Date") + ylab("kcal")
 ```
 
 ## Activity Data
